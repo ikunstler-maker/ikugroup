@@ -1,0 +1,75 @@
+---
+import HeroViewport from './hero/HeroViewport.astro';
+import { hero } from '../data/content';
+---
+
+<section id="top" class="relative isolate overflow-hidden pt-28 pb-16 md:pt-40 md:pb-24">
+  <!-- Ambient light -->
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[46rem] bg-[radial-gradient(60%_50%_at_75%_0%,rgb(255_204_216/0.10),transparent_70%)]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="container-x">
+    <p class="flex flex-col gap-1.5 text-tag text-fg-muted sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3" data-reveal>
+      {
+        hero.eyebrow.map((role, i) => (
+          <>
+            {i > 0 && <span class="hidden text-brand/60 sm:inline" aria-hidden="true">|</span>}
+            <span class="flex items-center gap-2">
+              <span class="size-1 rotate-45 bg-brand/70 sm:hidden" aria-hidden="true" />
+              {role}
+            </span>
+          </>
+        ))
+      }
+    </p>
+
+    <h1 class="mt-6 text-display md:mt-8" data-reveal style="--reveal-delay:80ms">
+      <span class="block">{hero.headline[0]}</span>
+      <span class="block text-fg-muted">{hero.headline[1]}</span>
+    </h1>
+
+    <div class="mt-8 grid gap-8 md:mt-12 lg:grid-cols-12 lg:items-end lg:gap-12">
+      <p class="text-lead max-w-2xl lg:col-span-7" data-reveal style="--reveal-delay:160ms">{hero.sub}</p>
+
+      <div class="lg:col-span-5 lg:justify-self-end" data-reveal style="--reveal-delay:240ms">
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <button type="button" class="btn btn-primary" data-open-booking>
+            {hero.primaryCta}
+            <svg class="arrow size-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+          </button>
+          <a href="#rnd-lab" class="btn btn-ghost">
+            {hero.secondaryCta}
+            <svg class="arrow arrow-down size-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4" /></svg>
+          </a>
+        </div>
+        <p class="mt-4 text-tag text-fg-subtle">{hero.microCopy.join(' · ')}</p>
+      </div>
+    </div>
+
+    <div class="mt-14 md:mt-20" data-reveal style="--reveal-delay:320ms">
+      <HeroViewport />
+    </div>
+
+    <ul class="mt-12 grid border-t border-line sm:grid-cols-3 md:mt-16">
+      {
+        hero.credentials.map((c, i) => (
+          <li
+            class:list={[
+              'flex flex-col gap-2 py-5 sm:py-6',
+              i > 0 && 'border-t border-line sm:border-t-0 sm:border-l sm:pl-6',
+              i < 2 && 'sm:pr-6',
+            ]}
+            data-reveal
+            style={`--reveal-delay:${i * 80}ms`}
+          >
+            <span class="text-tag text-brand">{c.kicker}</span>
+            <span class="text-[0.9375rem] leading-snug text-fg">{c.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

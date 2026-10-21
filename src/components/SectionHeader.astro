@@ -1,0 +1,21 @@
+---
+interface Props {
+  tag: string;
+  title: string;
+  sub?: string;
+  id?: string;
+  class?: string;
+}
+const { tag, title, sub, id, class: className } = Astro.props;
+const [num, ...rest] = tag.split(' — ');
+---
+
+<div class:list={['max-w-3xl', className]}>
+  <p class="text-tag text-fg-muted" data-reveal>
+    <span class="text-brand">// {num}</span>
+    <span class="mx-1.5 text-fg-subtle">—</span>{rest.join(' — ')}
+  </p>
+  <h2 id={id} class="mt-5 text-h2" data-reveal style="--reveal-delay:80ms">{title}</h2>
+  {sub && <p class="text-lead mt-5" data-reveal style="--reveal-delay:160ms">{sub}</p>}
+  <slot />
+</div>

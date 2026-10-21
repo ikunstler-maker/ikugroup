@@ -1,0 +1,83 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { services as s } from '../data/content';
+---
+
+<section id="services" class="section border-t border-line" aria-labelledby="services-title">
+  <div class="container-x">
+    <SectionHeader id="services-title" tag={s.tag} title={s.title} />
+
+    <div class="mt-12 md:mt-16" data-tabs>
+      <!-- Tabs -->
+      <div
+        class="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-3 md:gap-0 md:overflow-visible md:border-t md:border-line md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden"
+        role="tablist"
+        aria-label="Service vectors"
+        data-reveal
+      >
+        {
+          s.pillars.map((p, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${p.id}`}
+              aria-controls={`panel-${p.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="group/tab relative shrink-0 snap-start rounded-2xl border border-line px-4 py-4 text-left transition-colors aria-selected:border-brand/50 aria-selected:bg-brand/[0.06] md:rounded-none md:border-0 md:px-0 md:pt-6 md:pb-5 md:aria-selected:bg-transparent md:[&:not(:first-child)]:pl-6"
+              data-tab={p.id}
+            >
+              <span class="absolute inset-x-0 -top-px hidden h-px origin-left scale-x-0 bg-brand transition-transform duration-500 group-aria-selected/tab:scale-x-100 md:block" />
+              <span class="flex items-center gap-3">
+                <span class="grid size-7 place-items-center rounded-full border border-line-strong font-mono text-xs text-fg-muted transition-colors group-aria-selected/tab:border-brand group-aria-selected/tab:bg-brand group-aria-selected/tab:text-brand-ink">
+                  {p.letter}
+                </span>
+                <span class="text-[0.9375rem] font-semibold whitespace-nowrap text-fg-muted transition-colors group-hover/tab:text-fg group-aria-selected/tab:text-fg md:text-base">
+                  {p.short}
+                </span>
+              </span>
+              <span class="mt-2 hidden text-tag text-fg-subtle md:block">For {p.audience}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <!-- Panels -->
+      {
+        s.pillars.map((p) => (
+          <div
+            role="tabpanel"
+            id={`panel-${p.id}`}
+            aria-labelledby={`tab-${p.id}`}
+            class="mt-8 md:mt-12"
+            data-panel={p.id}
+            tabindex="0"
+          >
+            <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+              <div class="lg:col-span-4">
+                <p class="text-tag text-brand">Pillar {p.letter} · For {p.audience}</p>
+                <h3 class="mt-4 text-[1.75rem] leading-tight font-semibold tracking-tight md:text-4xl">{p.name}</h3>
+                <p class="mt-4 leading-relaxed text-fg-muted">{p.for}</p>
+                <button type="button" class="btn btn-ghost btn-sm mt-8" data-open-booking data-objective={p.objective}>
+                  Scope this on a call
+                  <svg class="arrow size-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+                </button>
+              </div>
+              <ul class="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:col-span-8">
+                {p.items.map((item, j) => (
+                  <li class="bg-bg p-6 md:p-7">
+                    <span class="font-mono text-xs text-fg-subtle">
+                      {p.letter}.0{j + 1}
+                    </span>
+                    <h4 class="mt-6 text-lg leading-snug font-semibold tracking-tight">{item.title}</h4>
+                    <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-fg-muted">{item.copy}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

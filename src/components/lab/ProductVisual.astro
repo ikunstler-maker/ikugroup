@@ -1,0 +1,189 @@
+---
+/** Abstract, data-driven motifs for each R&D product card. Pure SVG, generated at build time. */
+import type { ProductVisual } from '../../data/content';
+
+interface Props {
+  kind: ProductVisual;
+}
+const { kind } = Astro.props;
+
+// Deterministic pseudo-random sequence so builds are stable.
+const rng = (seed: number) => () => {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+};
+
+const BRAND = '#ffccd8';
+const FG = '#edebe6';
+const MUTED = '#a1a1a8';
+
+/* psycho — longitudinal tracking */
+const series = [
+  { color: BRAND, pts: [62, 58, 66, 49, 44, 38, 34], w: 2 },
+  { color: MUTED, pts: [40, 46, 42, 50, 47, 55, 52], w: 1.25 },
+  { color: '#8ec5e8', pts: [78, 72, 75, 70, 64, 66, 60], w: 1.25 },
+];
+const px = (i: number) => 24 + i * 76;
+const py = (v: number) => 20 + (100 - v) * 1.6;
+const linePath = (pts: number[]) => pts.map((v, i) => `${i ? 'L' : 'M'}${px(i)},${py(v)}`).join(' ');
+
+/* audio — waveform → matrix */
+const rWave = rng(7);
+const wave = Array.from({ length: 22 }, (_, i) => 8 + Math.abs(Math.sin(i * 0.7)) * 34 + rWave() * 14);
+const rMat = rng(42);
+const matrix = Array.from({ length: 6 * 8 }, () => 0.08 + rMat() * 0.8);
+
+/* qr — finder patterns + modules */
+const QN = 21;
+const rQr = rng(2026);
+const inFinder = (x: number, y: number) =>
+  (x < 8 && y < 8) || (x >= QN - 8 && y < 8) || (x < 8 && y >= QN - 8);
+const modules: [number, number][] = [];
+for (let y = 0; y < QN; y++) for (let x = 0; x < QN; x++) if (!inFinder(x, y) && rQr() > 0.52) modules.push([x, y]);
+const finders = [[0, 0], [QN - 7, 0], [0, QN - 7]];
+
+/* journal — interval bars */
+const rJ = rng(11);
+const days = Array.from({ length: 14 }, () => 0.25 + rJ() * 0.75);
+---
+
+{
+  kind === 'psycho' && (
+    <svg viewBox="0 0 520 200" class="h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {[0, 1, 2, 3].map((i) => (
+        <line x1="24" x2="480" y1={20 + i * 53} y2={20 + i * 53} stroke="rgb(255 255 255 / 0.07)" />
+      ))}
+      {series[0].pts.map((_, i) => (
+        <>
+          <line x1={px(i)} x2={px(i)} y1="20" y2="180" stroke="rgb(255 255 255 / 0.04)" />
+          <text x={px(i)} y="196" text-anchor="middle" style="font-family:var(--font-mono)" font-size="9" fill={MUTED}>
+            T{i + 1}
+          </text>
+        </>
+      ))}
+      {series.map((s) => (
+        <>
+          <path d={linePath(s.pts)} fill="none" stroke={s.color} stroke-width={s.w} stroke-linejoin="round" opacity={s.color === BRAND ? 1 : 0.7} />
+          {s.pts.map((v, i) => (
+            <circle cx={px(i)} cy={py(v)} r={s.color === BRAND ? 3.5 : 2.25} fill="#0a0a0b" stroke={s.color} stroke-width="1.5" />
+          ))}
+        </>
+      ))}
+      <g transform="translate(346 30)">
+        <rect width="134" height="26" rx="13" fill="rgb(255 204 216 / 0.08)" stroke="rgb(255 204 216 / 0.4)" />
+        <rect x="14" y="11" width="10" height="8" rx="1.5" fill="none" stroke={BRAND} stroke-width="1.25" />
+        <path d="M16.5 11 v-2.2 a2.5 2.5 0 0 1 5 0 V11" fill="none" stroke={BRAND} stroke-width="1.25" />
+        <text x="32" y="17.5" style="font-family:var(--font-mono)" font-size="9.5" fill={BRAND} letter-spacing="0.06em">
+          ZERO-KNOWLEDGE
+        </text>
+      </g>
+    </svg>
+  )
+}
+
+{
+  kind === 'audio' && (
+    <svg viewBox="0 0 320 120" class="h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {wave.map((h, i) => (
+        <rect x={10 + i * 5.4} y={60 - h / 2} width="2.4" height={h} rx="1.2" fill={i % 5 === 0 ? BRAND : FG} opacity={i % 5 === 0 ? 1 : 0.55} />
+      ))}
+      <g fill="none" stroke={MUTED} stroke-width="1.25" stroke-linecap="round">
+        <path d="M142 54 h28 m-6 -5 l6 5 l-6 5" />
+        <path d="M170 68 h-28 m6 -5 l-6 5 l6 5" />
+      </g>
+      {matrix.map((o, i) => (
+        <rect x={186 + (i % 8) * 15.5} y={14 + Math.floor(i / 8) * 15.5} width="12.5" height="12.5" rx="2" fill={BRAND} opacity={o} />
+      ))}
+    </svg>
+  )
+}
+
+{
+  kind === 'loop' && (
+    <svg viewBox="0 0 320 120" class="h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {[2, 1, 0].map((k) => (
+        <g transform={`translate(${16 + k * 8} ${22 - k * 8})`} opacity={k === 0 ? 1 : 0.35 - k * 0.08}>
+          <rect width="190" height="62" rx="6" fill="#141417" stroke="rgb(255 255 255 / 0.16)" />
+          {k === 0 &&
+            [0, 1, 2, 3, 4].map((f) => (
+              <rect x={8 + f * 35.5} y="8" width="31" height="46" rx="3" fill={f === 4 ? 'rgb(255 204 216 / 0.25)' : 'rgb(255 255 255 / 0.06)'} />
+            ))}
+        </g>
+      ))}
+      <path d="M44 100 h150" stroke="rgb(255 255 255 / 0.12)" stroke-width="2" stroke-linecap="round" />
+      <path d="M44 100 h104" stroke={BRAND} stroke-width="2" stroke-linecap="round" />
+      <g transform="translate(262 58)" fill="none" stroke={BRAND} stroke-width="1.75" stroke-linecap="round">
+        <path d="M-22 -4 a22 22 0 0 1 40 -10" />
+        <path d="M22 4 a22 22 0 0 1 -40 10" />
+        <path d="M18 -14 l0 -9 m0 9 l-9 0" />
+        <path d="M-18 14 l0 9 m0 -9 l9 0" />
+      </g>
+      <text x="262" y="104" text-anchor="middle" style="font-family:var(--font-mono)" font-size="10" fill={MUTED}>
+        ×24 batch
+      </text>
+    </svg>
+  )
+}
+
+{
+  kind === 'feed' && (
+    <svg viewBox="0 0 320 120" class="h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <rect x="112" y="6" width="96" height="140" rx="16" fill="#111113" stroke="rgb(255 255 255 / 0.2)" />
+      <rect x="146" y="12" width="28" height="5" rx="2.5" fill="rgb(255 255 255 / 0.15)" />
+      <circle cx="128" cy="32" r="6" fill="rgb(255 204 216 / 0.6)" />
+      <rect x="138" y="29" width="40" height="5" rx="2.5" fill="rgb(255 255 255 / 0.18)" />
+      {Array.from({ length: 9 }, (_, i) => (
+        <rect
+          x={121 + (i % 3) * 26}
+          y={42 + Math.floor(i / 3) * 26}
+          width="24"
+          height="24"
+          rx="2"
+          fill={i === 4 ? BRAND : 'rgb(255 255 255 / 0.08)'}
+          opacity={i === 4 ? 0.85 : 1}
+        />
+      ))}
+      <text x="226" y="62" style="font-family:var(--font-mono)" font-size="9.5" fill={MUTED}>pre-flight</text>
+      <path d="M222 66 h-26" stroke={MUTED} stroke-dasharray="2 3" />
+    </svg>
+  )
+}
+
+{
+  kind === 'qr' && (
+    <svg viewBox="0 0 320 120" class="h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <g transform="translate(108.5 7.5) scale(4.95)">
+        {modules.map(([x, y]) => (
+          <rect x={x + 0.08} y={y + 0.08} width="0.84" height="0.84" rx="0.2" fill={FG} opacity="0.8" />
+        ))}
+        {finders.map(([x, y]) => (
+          <>
+            <rect x={x + 0.5} y={y + 0.5} width="6" height="6" rx="1.4" fill="none" stroke={BRAND} stroke-width="1" />
+            <rect x={x + 2} y={y + 2} width="3" height="3" rx="0.7" fill={BRAND} />
+          </>
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+{
+  kind === 'journal' && (
+    <svg viewBox="0 0 320 120" class="h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <line x1="16" x2="304" y1="100" y2="100" stroke="rgb(255 255 255 / 0.1)" />
+      {days.map((v, i) => (
+        <rect
+          x={20 + i * 20.4}
+          y={100 - v * 80}
+          width="10"
+          height={v * 80}
+          rx="5"
+          fill={i >= 7 ? BRAND : 'rgb(255 255 255 / 0.18)'}
+          opacity={i >= 7 ? 0.45 + v * 0.5 : 1}
+        />
+      ))}
+      <rect x="160" y="10" width="148" height="96" rx="8" fill="none" stroke="rgb(255 204 216 / 0.35)" stroke-dasharray="3 4" />
+      <text x="168" y="24" style="font-family:var(--font-mono)" font-size="9" fill={BRAND} letter-spacing="0.06em">INTERVAL · 7D</text>
+    </svg>
+  )
+}

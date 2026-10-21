@@ -1,0 +1,94 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import CallForm from './contact/CallForm.astro';
+import ChannelIcon from './contact/ChannelIcon.astro';
+import StatusDot from './StatusDot.astro';
+import { contact as c } from '../data/content';
+import { contacts, site } from '../config/site';
+
+const direct = [
+  { icon: 'whatsapp', label: 'WhatsApp Business', value: contacts.phoneDisplay, href: contacts.whatsapp, external: true },
+  { icon: 'telegram', label: 'Telegram · Direct', value: contacts.telegramHandle, href: contacts.telegram, external: true },
+  { icon: 'email', label: 'Executive e-mail', value: contacts.email, href: `mailto:${contacts.email}`, external: false },
+  { icon: 'phone', label: 'Phone', value: contacts.phoneDisplay, href: contacts.phoneHref, external: false },
+] as const;
+
+const social = [
+  { icon: 'linkedin', label: 'LinkedIn', value: site.name, href: contacts.linkedin },
+  { icon: 'instagram', label: 'Instagram', value: contacts.instagramHandle, href: contacts.instagram },
+] as const;
+---
+
+<section id="contact" class="section relative isolate overflow-hidden border-t border-line" aria-labelledby="contact-title">
+  <div
+    class="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[40rem] bg-[radial-gradient(50%_60%_at_20%_100%,rgb(255_204_216/0.08),transparent_70%)]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="container-x">
+    <SectionHeader id="contact-title" tag={c.tag} title={c.title} sub={c.sub} />
+
+    <div class="mt-12 grid gap-5 md:mt-16 lg:grid-cols-12">
+      <!-- Smart intake -->
+      <div class="card p-6 md:p-10 lg:col-span-7" data-reveal>
+        <div class="mb-8 flex items-center justify-between gap-4">
+          <p class="text-tag text-fg-muted">Call request · 20 min</p>
+          <p class="flex items-center gap-2 text-tag text-fg-muted"><StatusDot />Open slots</p>
+        </div>
+        <CallForm prefix="contact" />
+      </div>
+
+      <!-- Direct channels -->
+      <aside class="flex flex-col gap-5 lg:col-span-5" data-reveal style="--reveal-delay:100ms" aria-label="Direct channels">
+        <div class="card overflow-hidden">
+          <p class="border-b border-line px-6 py-4 text-tag text-fg-muted">Direct executive channels</p>
+          <ul>
+            {
+              direct.map((d, i) => (
+                <li class:list={[i > 0 && 'border-t border-line']}>
+                  <a
+                    href={d.href}
+                    class="group/ch flex items-center gap-4 px-6 py-5 transition-colors hover:bg-white/[0.03]"
+                    {...(d.external ? { target: '_blank', rel: 'noopener' } : {})}
+                  >
+                    <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-line bg-surface-2 text-fg-muted transition-colors group-hover/ch:border-brand/40 group-hover/ch:text-brand">
+                      <ChannelIcon name={d.icon} />
+                    </span>
+                    <span class="min-w-0 flex-1">
+                      <span class="block text-tag text-fg-subtle">{d.label}</span>
+                      <span class="mt-1 block truncate text-[1.0625rem] font-medium">{d.value}</span>
+                    </span>
+                    <svg class="size-4 shrink-0 text-fg-subtle transition-all group-hover/ch:translate-x-0.5 group-hover/ch:text-brand" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="grid grid-cols-2 gap-5">
+          {
+            social.map((s) => (
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener"
+                class="card group/s flex flex-col gap-6 p-5 transition-colors hover:border-line-strong"
+              >
+                <span class="flex items-center justify-between text-fg-muted">
+                  <ChannelIcon name={s.icon} class="size-5 transition-colors group-hover/s:text-brand" />
+                  <svg class="size-3.5 text-fg-subtle" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 11l6-6M6 5h5v5" /></svg>
+                </span>
+                <span>
+                  <span class="block text-tag text-fg-subtle">{s.label}</span>
+                  <span class="mt-1 block truncate text-sm font-medium">{s.value}</span>
+                </span>
+              </a>
+            ))
+          }
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

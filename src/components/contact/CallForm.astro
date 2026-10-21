@@ -1,0 +1,112 @@
+---
+/**
+ * Call-request form. Rendered twice (contact section + booking modal),
+ * so every id is namespaced with `prefix`. Behaviour lives in scripts/form.ts.
+ */
+import { objectives, channels } from '../../data/content';
+import { contacts } from '../../config/site';
+
+interface Props {
+  prefix: string;
+}
+const { prefix } = Astro.props;
+const id = (name: string) => `${prefix}-${name}`;
+const check = '<svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#1c0f13" stroke-width="1.6"><path d="M1.5 4.2 3.2 5.8 6.5 2.2"/></svg>';
+---
+
+<div data-form-root>
+<form class="grid gap-7" data-call-form novalidate>
+  <fieldset>
+    <legend class="field-label">1 · Primary objective</legend>
+    <div class="flex flex-wrap gap-2">
+      {
+        objectives.map((o) => (
+          <label class="pill">
+            <input type="checkbox" name="objective" value={o.label} data-objective-id={o.id} />
+            <span class="check" set:html={check} />
+            {o.label}
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend class="field-label">2 · Preferred channel</legend>
+    <div class="flex flex-wrap gap-2">
+      {
+        channels.map((c, i) => (
+          <label class="pill">
+            <input type="radio" name="channel" value={c} checked={i === 0} />
+            <span class="check" set:html={check} />
+            {c}
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label class="field-label" for={id('name')}>Name & role <span class="text-brand">*</span></label>
+      <input class="field" id={id('name')} name="name" type="text" autocomplete="name" placeholder="Jane Doe, Head of Production" required />
+    </div>
+    <div>
+      <label class="field-label" for={id('company')}>Company / website</label>
+      <input class="field" id={id('company')} name="company" type="text" autocomplete="organization" placeholder="brand.com" />
+    </div>
+    <div class="sm:col-span-2">
+      <label class="field-label" for={id('contact')}>Phone / WhatsApp / Telegram <span class="text-brand">*</span></label>
+      <input class="field" id={id('contact')} name="contact" type="text" autocomplete="tel" placeholder="+1 555 0100 or @handle" required />
+    </div>
+    <div class="sm:col-span-2">
+      <label class="field-label" for={id('context')}>Brief context <span class="normal-case tracking-normal text-fg-subtle">(optional)</span></label>
+      <textarea class="field" id={id('context')} name="context" rows="3" placeholder="1–2 sentences on your goal"></textarea>
+    </div>
+  </div>
+
+  <!-- Honeypot -->
+  <div class="hidden" aria-hidden="true">
+    <label>Leave empty <input type="text" name="website_url" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <p class="hidden text-sm text-[#ff9aa3]" data-form-error role="alert"></p>
+
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <button type="submit" class="btn btn-primary" data-submit>
+      <span data-submit-label>Request a Strategy Call</span>
+      <svg class="arrow size-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+    </button>
+    <p class="text-xs leading-relaxed text-fg-subtle sm:max-w-56 sm:text-right">Used only to arrange the call. No newsletters, no tracking.</p>
+  </div>
+</form>
+
+<!-- Result panel (shown after submit) -->
+<div class="hidden" data-form-result tabindex="-1">
+  <div data-result-sent class="hidden">
+    <span class="grid size-12 place-items-center rounded-full bg-brand text-brand-ink">
+      <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 10.5 8 14l8-8.5" /></svg>
+    </span>
+    <h3 class="mt-6 text-h3">Request received.</h3>
+    <p class="mt-3 leading-relaxed text-fg-muted">
+      Thank you — I'll get back to you shortly via <span class="text-fg" data-result-channel></span> to confirm a time.
+    </p>
+  </div>
+
+  <div data-result-handoff class="hidden">
+    <p class="text-tag text-brand">Almost there</p>
+    <h3 class="mt-4 text-h3">Send your request in one tap.</h3>
+    <p class="mt-3 leading-relaxed text-fg-muted">Your brief is assembled. Pick the channel you use most — the message is pre-filled.</p>
+    <div class="mt-6 grid gap-2 sm:grid-cols-3">
+      <a class="btn btn-primary" data-handoff="whatsapp" href={contacts.whatsapp} target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn btn-ghost" data-handoff="telegram" href={contacts.telegram} target="_blank" rel="noopener">Telegram</a>
+      <a class="btn btn-ghost" data-handoff="email" href={`mailto:${contacts.email}`}>E-mail</a>
+    </div>
+    <p class="mt-3 hidden text-xs text-fg-muted" data-copied>Message copied — paste it into the Telegram chat.</p>
+  </div>
+
+  <button type="button" class="mt-8 text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline" data-form-reset>
+    ← Edit request
+  </button>
+</div>
+</div>

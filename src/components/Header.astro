@@ -1,0 +1,109 @@
+---
+import Logo from './Logo.astro';
+import StatusDot from './StatusDot.astro';
+import { nav, site, contacts } from '../config/site';
+---
+
+<header
+  id="site-header"
+  class="group/header fixed inset-x-0 top-0 z-50 border-b border-transparent transition-colors duration-300 data-[scrolled=true]:border-line data-[scrolled=true]:bg-bg/75 data-[scrolled=true]:backdrop-blur-xl data-[menu=open]:bg-bg"
+  data-scrolled="false"
+  data-menu="closed"
+>
+  <div class="container-x flex h-16 items-center gap-3 md:h-[4.5rem]">
+    <!-- Brand -->
+    <a href="#top" class="flex min-w-0 items-center gap-2.5" aria-label={`${site.name} — back to top`}>
+      <Logo class="size-7 shrink-0 text-brand" />
+      <span class="flex min-w-0 flex-col leading-none">
+        <span class="truncate text-[0.8125rem] font-semibold tracking-[0.06em] uppercase">Elijah Künstler</span>
+        <span class="mt-1 hidden font-mono text-[0.625rem] tracking-[0.14em] text-fg-muted uppercase sm:block">
+          iKu.group
+        </span>
+      </span>
+    </a>
+
+    <!-- Live availability -->
+    <span
+      class="ml-auto inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5 lg:ml-5"
+      title={site.availability}
+    >
+      <StatusDot />
+      <span class="text-tag text-fg-muted">
+        <span class="xl:hidden">Available</span>
+        <span class="hidden xl:inline">{site.availability}</span>
+      </span>
+    </span>
+
+    <!-- Desktop nav -->
+    <nav class="ml-auto hidden lg:block" aria-label="Primary">
+      <ul class="flex items-center gap-1">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                data-nav-link
+                class="rounded-full px-3 py-2 text-sm text-fg-muted transition-colors hover:text-fg aria-[current=true]:text-fg"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <button type="button" class="btn btn-primary btn-sm ml-3 hidden lg:inline-flex" data-open-booking>
+      Book a Call
+    </button>
+
+    <!-- Mobile menu toggle -->
+    <button
+      type="button"
+      class="-mr-2 grid size-11 place-items-center rounded-full text-fg lg:hidden"
+      aria-controls="mobile-menu"
+      aria-expanded="false"
+      aria-label="Open menu"
+      data-menu-toggle
+    >
+      <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path class="origin-center transition-transform duration-300 group-data-[menu=open]/header:translate-y-[3px] group-data-[menu=open]/header:rotate-45" d="M3 7h14" />
+        <path class="origin-center transition-transform duration-300 group-data-[menu=open]/header:-translate-y-[3px] group-data-[menu=open]/header:-rotate-45" d="M3 13h14" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div
+    id="mobile-menu"
+    class="hidden h-[calc(100dvh-4rem)] overflow-y-auto md:h-[calc(100dvh-4.5rem)] border-t border-line bg-bg group-data-[menu=open]/header:block lg:hidden!"
+  >
+    <div class="container-x flex min-h-full flex-col pt-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <p class="flex items-center gap-2 text-tag text-fg-muted">
+        <StatusDot />{site.availability}
+      </p>
+      <nav class="mt-8" aria-label="Mobile">
+        <ul class="divide-y divide-line border-y border-line">
+          {
+            nav.map((item, i) => (
+              <li>
+                <a href={item.href} data-menu-link class="flex items-baseline justify-between py-4">
+                  <span class="text-2xl font-semibold tracking-tight">{item.label}</span>
+                  <span class="text-tag text-fg-subtle">0{i + 1}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <div class="mt-auto grid gap-3 pt-10">
+        <button type="button" class="btn btn-primary w-full" data-open-booking>Book a 20-Min Call</button>
+        <div class="grid grid-cols-3 gap-2">
+          <a class="btn btn-ghost btn-sm" href={contacts.telegram} target="_blank" rel="noopener">Telegram</a>
+          <a class="btn btn-ghost btn-sm" href={contacts.whatsapp} target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn btn-ghost btn-sm" href={`mailto:${contacts.email}`}>Email</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

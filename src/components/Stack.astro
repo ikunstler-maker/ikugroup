@@ -1,0 +1,134 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { stack } from '../data/content';
+
+const cert = stack.certificate;
+const external = { target: '_blank', rel: 'noopener noreferrer' };
+---
+
+<section id="tech-stack" class="section border-t border-line" aria-labelledby="tech-stack-title">
+  <div class="container-x">
+    <SectionHeader id="tech-stack-title" tag={stack.tag} title={stack.title} />
+
+    <!-- 6.1 Verified credentials -->
+    <div class="mt-12 grid gap-4 md:mt-16 lg:grid-cols-12 lg:gap-5">
+      <article class="card flex flex-col p-6 md:p-8 lg:col-span-5" data-reveal>
+        <p class="text-tag text-brand">Verified credential</p>
+        <h3 class="mt-5 text-2xl font-semibold tracking-tight md:text-3xl">{cert.name}</h3>
+        <p class="mt-3 text-fg-muted">{cert.issuer} · {cert.date}</p>
+
+        <div class="mt-8" aria-hidden="true">
+          <div class="grid grid-cols-8 gap-1">
+            {stack.courses.map(() => <span class="h-1.5 rounded-full bg-brand" />)}
+          </div>
+          <p class="mt-2 flex justify-between font-mono text-[0.6875rem] tracking-wider text-fg-muted uppercase">
+            <span>8 / 8 courses</span><span>Completed</span>
+          </p>
+        </div>
+
+        <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-10">
+          <span class="font-mono text-xs text-fg-subtle">ID {cert.id}</span>
+          <a href={cert.verify} class="btn btn-primary btn-sm" {...external}>
+            Verify on Coursera
+            <svg class="arrow size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 11l6-6M6 5h5v5" /></svg>
+          </a>
+        </div>
+      </article>
+
+      <div class="card overflow-hidden lg:col-span-7" data-reveal style="--reveal-delay:100ms">
+        <p class="border-b border-line px-6 py-4 text-tag text-fg-muted md:px-8">Google AI · Course certificates</p>
+        <ol class="grid sm:grid-cols-2">
+          {
+            stack.courses.map((c, i) => (
+              <li class:list={['border-line', i > 0 && 'border-t', i === 1 && 'sm:border-t-0', i % 2 === 1 && 'sm:border-l']}>
+                <a
+                  href={`https://coursera.org/verify/${c.id}`}
+                  class="group/c flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.03] md:px-8"
+                  {...external}
+                >
+                  <span class="font-mono text-xs text-fg-subtle">0{i + 1}</span>
+                  <span class="flex-1 text-[0.9375rem] leading-snug">{c.name}</span>
+                  <span class="sr-only">— verify certificate {c.id} on Coursera (opens in new tab)</span>
+                  <svg class="size-3.5 shrink-0 text-fg-subtle transition-colors group-hover/c:text-brand" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 11l6-6M6 5h5v5" /></svg>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+
+    <!-- 6.2 Software & pipeline ecosystem -->
+    <div class="mt-16 md:mt-24">
+      <h3 class="text-tag text-fg-muted" data-reveal>Software & pipeline ecosystem</h3>
+      <div class="mt-6 grid gap-4 md:grid-cols-2 md:gap-5">
+        {
+          stack.groups.map((g, i) => (
+            <article class="card relative p-6 md:p-7" data-reveal style={`--reveal-delay:${(i % 2) * 80}ms`}>
+              <span class="absolute top-1/2 -left-[5px] size-2.5 -translate-y-1/2 rounded-full border-2 border-bg bg-fg-subtle" aria-hidden="true" />
+              <span class="absolute top-1/2 -right-[5px] size-2.5 -translate-y-1/2 rounded-full border-2 border-bg bg-brand" aria-hidden="true" />
+              <header class="flex items-baseline justify-between gap-4">
+                <h4 class="text-lg font-semibold tracking-tight">{g.name}</h4>
+                <span class="font-mono text-[0.6875rem] text-fg-subtle">{g.node}</span>
+              </header>
+              <ul class="mt-5 flex flex-wrap gap-1.5">
+                {g.items.map((item) => (
+                  <li class="rounded-md border border-line bg-surface-1 px-2.5 py-1.5 font-mono text-[0.75rem] leading-none text-fg-muted">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- 6.3 Human & machine languages -->
+    <div class="mt-16 md:mt-24" data-reveal>
+      <h3 class="text-tag text-fg-muted">Human & machine languages</h3>
+      <div class="term mt-6 overflow-hidden rounded-2xl border border-line bg-[#0c0c0e]">
+        <div class="flex items-center gap-2 border-b border-line px-4 py-3">
+          <span class="size-2.5 rounded-full bg-white/15"></span>
+          <span class="size-2.5 rounded-full bg-white/15"></span>
+          <span class="size-2.5 rounded-full bg-white/15"></span>
+          <span class="ml-3 font-mono text-[0.6875rem] text-fg-subtle">~/ikunstler — protocols.log</span>
+        </div>
+        <div class="p-5 font-mono text-[0.8125rem] leading-relaxed md:p-8 md:text-sm">
+          <p class="term-line text-fg-subtle" style="--i:0">// COMMUNICATION PROTOCOLS & DIALECTS</p>
+          <dl class="mt-4 grid gap-2.5 md:gap-1.5">
+            {
+              stack.languages.map((l, i) => (
+                <div class="term-line grid gap-x-4 md:grid-cols-[17rem_1fr]" style={`--i:${i + 1}`}>
+                  <dt class="text-fg">
+                    <span class="text-brand">•</span> {l.lang}:
+                  </dt>
+                  <dd class="pl-4 text-fg-muted md:pl-0">{l.level}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <p class="term-line mt-4 text-fg-subtle" style={`--i:${stack.languages.length + 1}`}>
+            $ <span class="term-cursor inline-block h-[1.1em] w-[0.55em] translate-y-[0.2em] bg-brand"></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  :global(.js) .term .term-line {
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    transition-delay: calc(300ms + var(--i) * 110ms);
+  }
+  :global(.js) .is-visible .term .term-line { opacity: 1; transform: none; }
+  .term-cursor { animation: blink 1.05s steps(2, jump-none) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .term .term-line { opacity: 1; transform: none; transition: none; }
+  }
+</style>

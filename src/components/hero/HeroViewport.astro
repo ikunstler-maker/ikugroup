@@ -1,0 +1,249 @@
+---
+/**
+ * Director View ↔ Architect View.
+ * Director: final commercial frame (generative camera-monitor scene, or real footage via heroMedia).
+ * Architect: the ComfyUI-style node pipeline behind that frame.
+ */
+import NodeGraph from './NodeGraph.astro';
+import { heroMedia } from '../../config/site';
+
+const modes = [
+  {
+    id: 'director',
+    label: 'Director View',
+    caption: 'Director View — the final commercial frame your audience sees.',
+  },
+  {
+    id: 'architect',
+    label: 'Architect View',
+    caption: 'Architect View — the node-based pipeline that renders it, versioned and repeatable.',
+  },
+];
+const video = heroMedia.director;
+---
+
+<div class="hv" data-viewport data-mode="director">
+  <div class="mb-3 flex items-center justify-between gap-4">
+    <div
+      class="relative inline-grid grid-cols-2 rounded-full border border-line bg-surface-1 p-1"
+      role="group"
+      aria-label="Viewport layer"
+    >
+      <span class="hv-thumb" aria-hidden="true"></span>
+      {
+        modes.map((m) => (
+          <button
+            type="button"
+            class="hv-btn relative z-10 rounded-full px-3.5 py-2 text-tag transition-colors sm:px-4"
+            data-mode-btn={m.id}
+            data-caption={m.caption}
+            aria-pressed={m.id === 'director' ? 'true' : 'false'}
+          >
+            {m.label}
+          </button>
+        ))
+      }
+    </div>
+    <p class="hidden text-tag text-fg-subtle md:block">Creative ⇄ Technical</p>
+  </div>
+
+  <div
+    class="hv-frame relative aspect-[4/5] overflow-hidden rounded-2xl border border-line bg-black sm:aspect-[16/9] lg:aspect-[21/9]"
+  >
+    <!-- ── Director layer ── -->
+    <div class="hv-scene absolute inset-0">
+      {
+        video.src ? (
+          <video
+            class="size-full object-cover"
+            src={video.src}
+            poster={video.poster || undefined}
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+          />
+        ) : (
+          <svg class="size-full" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="hv-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#06080d" />
+                <stop offset="0.32" stop-color="#181827" />
+                <stop offset="0.55" stop-color="#4a3248" />
+                <stop offset="0.68" stop-color="#a86f80" />
+                <stop offset="0.76" stop-color="#efbcb4" />
+              </linearGradient>
+              <radialGradient id="hv-glow" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0" stop-color="#ffe9df" stop-opacity="0.95" />
+                <stop offset="0.25" stop-color="#ffc6c2" stop-opacity="0.45" />
+                <stop offset="1" stop-color="#ffc6c2" stop-opacity="0" />
+              </radialGradient>
+              <linearGradient id="hv-flare" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#9ec8ff" stop-opacity="0" />
+                <stop offset="0.5" stop-color="#d6e8ff" stop-opacity="0.75" />
+                <stop offset="1" stop-color="#9ec8ff" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="hv-fog" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ffd9df" stop-opacity="0" />
+                <stop offset="0.5" stop-color="#ffd9df" stop-opacity="0.22" />
+                <stop offset="1" stop-color="#ffd9df" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="hv-far" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#7a5167" />
+                <stop offset="1" stop-color="#3b2838" />
+              </linearGradient>
+            </defs>
+            <g class="hv-kenburns">
+              <rect width="1600" height="1000" fill="url(#hv-sky)" />
+              <circle cx="1030" cy="660" r="430" fill="url(#hv-glow)" />
+              <circle cx="1030" cy="660" r="52" fill="#fff3ec" />
+              <ellipse class="hv-flare" cx="1030" cy="660" rx="760" ry="2.5" fill="url(#hv-flare)" />
+              <path
+                d="M0 700 L90 668 L170 684 L260 640 L350 664 L430 628 L520 662 L610 640 L700 676 L800 646 L880 668 L980 690 L1080 652 L1170 676 L1260 630 L1350 662 L1450 642 L1530 670 L1600 656 V1000 H0Z"
+                fill="url(#hv-far)"
+                opacity="0.9"
+              />
+              <rect class="hv-fog" x="-400" y="650" width="2400" height="140" fill="url(#hv-fog)" />
+              <path
+                d="M0 770 C120 730 220 712 330 742 S560 700 690 728 S900 770 1030 736 S1290 700 1420 734 S1560 756 1600 748 V1000 H0Z"
+                fill="#2a1c29"
+              />
+              <path
+                d="M0 868 C180 818 380 834 560 860 S920 812 1120 846 S1440 872 1600 840 V1000 H0Z"
+                fill="#0d0a0f"
+              />
+            </g>
+          </svg>
+        )
+      }
+      <div class="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_45%,transparent_45%,rgb(0_0_0/0.65))]"></div>
+    </div>
+
+    <!-- Director HUD -->
+    <div class="hv-hud-director pointer-events-none absolute inset-0 font-mono text-[0.625rem] tracking-[0.12em] text-white/80 uppercase sm:text-[0.6875rem]">
+      <span class="hv-corner top-3 left-3 border-t border-l sm:top-4 sm:left-4"></span>
+      <span class="hv-corner top-3 right-3 border-t border-r sm:top-4 sm:right-4"></span>
+      <span class="hv-corner bottom-3 left-3 border-b border-l sm:bottom-4 sm:left-4"></span>
+      <span class="hv-corner right-3 bottom-3 border-r border-b sm:right-4 sm:bottom-4"></span>
+
+      <div class="absolute top-5 left-6 flex items-center gap-2 sm:top-7 sm:left-8">
+        <span class="hv-rec size-1.5 rounded-full bg-[#ff4d5e]"></span>REC · A-CAM
+      </div>
+      <div class="absolute top-5 right-6 tabular-nums sm:top-7 sm:right-8" data-timecode>00:00:00:00</div>
+      <div class="absolute bottom-5 left-6 sm:bottom-7 sm:left-8">
+        <span class="sm:hidden">4:5 · Social cut</span>
+        <span class="hidden sm:inline lg:hidden">16:9 · Broadcast</span>
+        <span class="hidden lg:inline">2.39:1 · Master · ISO 800 · 5600K · T2.0</span>
+      </div>
+      <div class="absolute right-6 bottom-5 sm:right-8 sm:bottom-7">ACES AP1 → Rec.709</div>
+      <div class="absolute top-1/2 left-1/2 size-4 -translate-x-1/2 -translate-y-1/2 opacity-50">
+        <span class="absolute top-1/2 left-0 h-px w-full bg-white/70"></span>
+        <span class="absolute top-0 left-1/2 h-full w-px bg-white/70"></span>
+      </div>
+    </div>
+
+    <!-- ── Architect layer ── -->
+    <div class="hv-architect absolute inset-0">
+      <div class="hv-dots absolute inset-0"></div>
+      <div class="absolute inset-x-3 top-3 bottom-10 sm:inset-x-6 sm:top-12 sm:bottom-12">
+        <NodeGraph layout="tall" class="size-full sm:hidden" />
+        <NodeGraph layout="wide" class="hidden size-full sm:block" />
+      </div>
+      <div class="absolute inset-x-4 bottom-3 flex items-center justify-between font-mono text-[0.625rem] tracking-[0.12em] text-fg-muted uppercase sm:inset-x-6 sm:bottom-4 sm:text-[0.6875rem]">
+        <span>commercial_pipeline_v07.json</span>
+        <span class="flex items-center gap-2"><span class="size-1.5 rounded-full bg-live"></span>Queue ready</span>
+      </div>
+      <div class="absolute top-4 left-6 hidden font-mono text-[0.6875rem] tracking-[0.12em] text-fg-muted uppercase sm:block">
+        Node graph · 7 nodes · 8 links
+      </div>
+    </div>
+  </div>
+
+  <p class="mt-3 font-mono text-xs text-fg-muted" data-mode-caption aria-live="polite">{modes[0].caption}</p>
+</div>
+
+<style is:global>
+  /* Segmented toggle */
+  .hv-thumb {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0.25rem;
+    width: calc(50% - 0.25rem);
+    border-radius: 999px;
+    background: var(--color-brand);
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+  .hv[data-mode='architect'] .hv-thumb { transform: translateX(100%); }
+  .hv-btn { color: var(--color-fg-muted); }
+  .hv-btn[aria-pressed='true'] { color: var(--color-brand-ink); }
+  .hv-btn[aria-pressed='false']:hover { color: var(--color-fg); }
+
+  /* Director scene */
+  .hv-scene { transition: filter 0.9s var(--ease-out-expo), transform 1.2s var(--ease-out-expo); }
+  .hv[data-mode='architect'] .hv-scene { filter: saturate(0.25) brightness(0.28) blur(3px); transform: scale(1.04); }
+
+  .hv-kenburns { transform-origin: 64% 66%; animation: hv-kenburns 26s ease-in-out infinite alternate; }
+  .hv-fog { animation: hv-fog 30s ease-in-out infinite alternate; }
+  .hv-flare { transform-origin: 1030px 660px; animation: hv-flare 6s ease-in-out infinite alternate; }
+  .hv-rec { animation: hv-blink 1.2s steps(2, jump-none) infinite; }
+
+  @keyframes hv-kenburns { from { transform: scale(1.02); } to { transform: scale(1.12) translate(-1%, -1%); } }
+  @keyframes hv-fog { from { transform: translateX(-180px); } to { transform: translateX(180px); } }
+  @keyframes hv-flare { from { opacity: 0.55; transform: scaleX(0.9); } to { opacity: 1; transform: scaleX(1.05); } }
+  @keyframes hv-blink { 50% { opacity: 0; } }
+
+  .hv-corner { position: absolute; width: 1.25rem; height: 1.25rem; border-color: rgb(255 255 255 / 0.55); }
+
+  .hv-hud-director { transition: opacity 0.6s ease; }
+  .hv[data-mode='architect'] .hv-hud-director { opacity: 0; }
+
+  /* Architect layer */
+  .hv-architect { opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0s linear 0.6s; }
+  .hv[data-mode='architect'] .hv-architect { opacity: 1; visibility: visible; transition: opacity 0.6s ease; }
+
+  .hv-dots {
+    background-image: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px);
+    background-size: 18px 18px;
+    mask-image: radial-gradient(110% 90% at 50% 50%, #000 40%, transparent 100%);
+  }
+
+  .hv-graph .hv-title { font-family: var(--font-sans); font-size: 11.5px; font-weight: 600; fill: #edebe6; letter-spacing: -0.005em; }
+  .hv-graph .hv-label { font-family: var(--font-mono); font-size: 9.5px; fill: #a1a1a8; }
+  .hv-graph .hv-value { font-family: var(--font-mono); font-size: 9.5px; fill: #edebe6; }
+
+  .hv-node {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.7s var(--ease-out-expo);
+    transition-delay: calc(var(--i) * 70ms);
+  }
+  .hv[data-mode='architect'] .hv-node { opacity: 1; transform: none; }
+
+  .hv-wire {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0.55;
+    transition: stroke-dashoffset 1s var(--ease-out-expo);
+    transition-delay: calc(250ms + var(--i) * 90ms);
+  }
+  .hv[data-mode='architect'] .hv-wire { stroke-dashoffset: 0; }
+
+  .hv-flow {
+    stroke-dasharray: 3 22;
+    stroke-width: 2.5;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .hv[data-mode='architect'] .hv-flow {
+    opacity: 1;
+    transition-delay: calc(900ms + var(--i) * 90ms);
+    animation: hv-flow 1.1s linear infinite;
+  }
+  @keyframes hv-flow { to { stroke-dashoffset: -25; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hv-kenburns, .hv-fog, .hv-flare, .hv-rec, .hv-flow { animation: none !important; }
+  }
+</style>

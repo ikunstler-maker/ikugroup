@@ -1,0 +1,220 @@
+---
+/**
+ * ComfyUI-style node graph rendered as static SVG at build time.
+ * Two layouts: `wide` (21:9 frame) and `tall` (4:5 mobile frame).
+ */
+type SocketType = 'model' | 'cond' | 'latent' | 'vae' | 'image' | 'audio';
+type Socket = { name: string; type: SocketType };
+type GraphNode = {
+  id: string;
+  x: number;
+  y: number;
+  w: number;
+  title: string;
+  inputs?: Socket[];
+  outputs?: Socket[];
+  widgets?: [string, string][];
+};
+type Edge = [from: string, out: number, to: string, inp: number];
+
+interface Props {
+  layout: 'wide' | 'tall';
+  class?: string;
+}
+const { layout, class: className } = Astro.props;
+
+const COLORS: Record<SocketType, string> = {
+  model: '#b7a3e0',
+  cond: '#f2b36b',
+  latent: '#f3a6c8',
+  vae: '#ef8a8a',
+  image: '#8ec5e8',
+  audio: '#8fd6ae',
+};
+
+const HEADER = 26;
+const ROW = 18;
+const PAD_TOP = 7;
+const PAD_BOTTOM = 9;
+
+const wide: { w: number; h: number; nodes: GraphNode[]; edges: Edge[] } = {
+  w: 900,
+  h: 386,
+  nodes: [
+    {
+      id: 'prompt', x: 24, y: 26, w: 196, title: 'Brief → Prompt Schema',
+      outputs: [{ name: 'positive', type: 'cond' }, { name: 'negative', type: 'cond' }],
+      widgets: [['format', 'JSON'], ['tokens', '312']],
+    },
+    {
+      id: 'ckpt', x: 24, y: 206, w: 196, title: 'Load Checkpoint',
+      outputs: [{ name: 'MODEL', type: 'model' }, { name: 'VAE', type: 'vae' }],
+      widgets: [['ckpt', 'video-dit_fp16'], ['lora', 'brand_look_v3']],
+    },
+    {
+      id: 'sampler', x: 292, y: 70, w: 188, title: 'KSampler · Video',
+      inputs: [{ name: 'model', type: 'model' }, { name: 'positive', type: 'cond' }, { name: 'negative', type: 'cond' }],
+      outputs: [{ name: 'LATENT', type: 'latent' }],
+      widgets: [['seed', '104729'], ['steps', '28'], ['cfg', '6.5'], ['sampler', 'dpmpp_2m']],
+    },
+    {
+      id: 'audio', x: 292, y: 286, w: 188, title: 'Audio Matrix · VO / SFX',
+      outputs: [{ name: 'AUDIO', type: 'audio' }],
+      widgets: [['sr', '48 kHz']],
+    },
+    {
+      id: 'decode', x: 540, y: 34, w: 156, title: 'VAE Decode',
+      inputs: [{ name: 'samples', type: 'latent' }, { name: 'vae', type: 'vae' }],
+      outputs: [{ name: 'IMAGE', type: 'image' }],
+    },
+    {
+      id: 'aces', x: 540, y: 196, w: 156, title: 'ACES Transform',
+      inputs: [{ name: 'image', type: 'image' }],
+      outputs: [{ name: 'IMAGE', type: 'image' }],
+      widgets: [['in', 'ACEScg'], ['out', 'Rec.709']],
+    },
+    {
+      id: 'combine', x: 748, y: 120, w: 132, title: 'Video Combine',
+      inputs: [{ name: 'images', type: 'image' }, { name: 'audio', type: 'audio' }],
+      widgets: [['fps', '24'], ['codec', 'h265'], ['→', 'master.mp4']],
+    },
+  ],
+  edges: [
+    ['ckpt', 0, 'sampler', 0],
+    ['prompt', 0, 'sampler', 1],
+    ['prompt', 1, 'sampler', 2],
+    ['sampler', 0, 'decode', 0],
+    ['ckpt', 1, 'decode', 1],
+    ['decode', 0, 'aces', 0],
+    ['aces', 0, 'combine', 0],
+    ['audio', 0, 'combine', 1],
+  ],
+};
+
+const tall: typeof wide = {
+  w: 360,
+  h: 450,
+  nodes: [
+    {
+      id: 'prompt', x: 14, y: 18, w: 156, title: 'Prompt Schema',
+      outputs: [{ name: 'positive', type: 'cond' }, { name: 'negative', type: 'cond' }],
+    },
+    {
+      id: 'ckpt', x: 190, y: 18, w: 156, title: 'Load Checkpoint',
+      outputs: [{ name: 'MODEL', type: 'model' }, { name: 'VAE', type: 'vae' }],
+    },
+    {
+      id: 'sampler', x: 100, y: 118, w: 160, title: 'KSampler · Video',
+      inputs: [{ name: 'model', type: 'model' }, { name: 'positive', type: 'cond' }, { name: 'negative', type: 'cond' }],
+      outputs: [{ name: 'LATENT', type: 'latent' }],
+      widgets: [['steps', '28'], ['cfg', '6.5']],
+    },
+    {
+      id: 'decode', x: 14, y: 272, w: 150, title: 'VAE Decode',
+      inputs: [{ name: 'samples', type: 'latent' }, { name: 'vae', type: 'vae' }],
+      outputs: [{ name: 'IMAGE', type: 'image' }],
+    },
+    {
+      id: 'aces', x: 196, y: 272, w: 150, title: 'ACES Transform',
+      inputs: [{ name: 'image', type: 'image' }],
+      outputs: [{ name: 'IMAGE', type: 'image' }],
+      widgets: [['out', 'Rec.709']],
+    },
+    {
+      id: 'combine', x: 100, y: 370, w: 160, title: 'Video Combine',
+      inputs: [{ name: 'images', type: 'image' }],
+      widgets: [['→', 'master.mp4']],
+    },
+  ],
+  edges: [
+    ['ckpt', 0, 'sampler', 0],
+    ['prompt', 0, 'sampler', 1],
+    ['prompt', 1, 'sampler', 2],
+    ['sampler', 0, 'decode', 0],
+    ['ckpt', 1, 'decode', 1],
+    ['decode', 0, 'aces', 0],
+    ['aces', 0, 'combine', 0],
+  ],
+};
+
+const graph = layout === 'wide' ? wide : tall;
+const byId = new Map(graph.nodes.map((n) => [n.id, n]));
+
+const socketRows = (n: GraphNode) => Math.max(n.inputs?.length ?? 0, n.outputs?.length ?? 0);
+const rowY = (i: number) => HEADER + PAD_TOP + i * ROW + ROW / 2;
+const height = (n: GraphNode) => HEADER + PAD_TOP + (socketRows(n) + (n.widgets?.length ?? 0)) * ROW + PAD_BOTTOM;
+
+const wires = graph.edges.map(([from, out, to, inp]) => {
+  const a = byId.get(from)!;
+  const b = byId.get(to)!;
+  const x1 = a.x + a.w;
+  const y1 = a.y + rowY(out);
+  const x2 = b.x;
+  const y2 = b.y + rowY(inp);
+  const dx = Math.max(48, Math.abs(x2 - x1) * 0.5);
+  return {
+    d: `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`,
+    color: COLORS[a.outputs![out].type],
+  };
+});
+---
+
+<svg
+  class:list={['hv-graph', className]}
+  viewBox={`0 0 ${graph.w} ${graph.h}`}
+  preserveAspectRatio="xMidYMid meet"
+  aria-hidden="true"
+>
+  <g fill="none" stroke-width="2" stroke-linecap="round">
+    {wires.map((w, i) => <path class="hv-wire" d={w.d} stroke={w.color} pathLength="1" style={`--i:${i}`} />)}
+    {wires.map((w, i) => <path class="hv-flow" d={w.d} stroke={w.color} style={`--i:${i}`} />)}
+  </g>
+
+  {
+    graph.nodes.map((n, i) => {
+      const h = height(n);
+      const rows = socketRows(n);
+      return (
+        <g transform={`translate(${n.x} ${n.y})`}>
+          <g class="hv-node" style={`--i:${i}`}>
+            <rect width={n.w} height={h} rx="8" fill="#141417" fill-opacity="0.92" stroke="rgb(255 255 255 / 0.12)" />
+            <path d={`M0,8 a8,8 0 0 1 8,-8 h${n.w - 16} a8,8 0 0 1 8,8 v${HEADER - 8} h-${n.w} z`} fill="#1d1d22" />
+            <line x1="0" x2={n.w} y1={HEADER} y2={HEADER} stroke="rgb(255 255 255 / 0.08)" />
+            <circle cx="13" cy={HEADER / 2} r="3" fill="#ffccd8" />
+            <text class="hv-title" x="23" y={HEADER / 2 + 4}>
+              {n.title}
+            </text>
+
+            {n.inputs?.map((s, j) => (
+              <>
+                <circle cx="0" cy={rowY(j)} r="4" fill={COLORS[s.type]} stroke="#0a0a0b" stroke-width="2" />
+                <text class="hv-label" x="10" y={rowY(j) + 3}>
+                  {s.name}
+                </text>
+              </>
+            ))}
+            {n.outputs?.map((s, j) => (
+              <>
+                <circle cx={n.w} cy={rowY(j)} r="4" fill={COLORS[s.type]} stroke="#0a0a0b" stroke-width="2" />
+                <text class="hv-label" x={n.w - 10} y={rowY(j) + 3} text-anchor="end">
+                  {s.name}
+                </text>
+              </>
+            ))}
+            {n.widgets?.map(([k, v], j) => (
+              <>
+                <rect x="8" y={rowY(rows + j) - 7} width={n.w - 16} height="14" rx="7" fill="rgb(255 255 255 / 0.045)" />
+                <text class="hv-label" x="16" y={rowY(rows + j) + 3}>
+                  {k}
+                </text>
+                <text class="hv-value" x={n.w - 16} y={rowY(rows + j) + 3} text-anchor="end">
+                  {v}
+                </text>
+              </>
+            ))}
+          </g>
+        </g>
+      );
+    })
+  }
+</svg>

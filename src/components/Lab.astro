@@ -1,0 +1,83 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import ProductVisual from './lab/ProductVisual.astro';
+import { lab } from '../data/content';
+
+// Bento rhythm: featured (full row) → two halves → three thirds.
+const span: Record<string, string> = {
+  xl: 'md:col-span-6 lg:flex-row-reverse',
+  md: 'md:col-span-3',
+  sm: 'md:col-span-2',
+};
+---
+
+<section id="rnd-lab" class="section border-t border-line" aria-labelledby="rnd-lab-title">
+  <div class="container-x">
+    <SectionHeader id="rnd-lab-title" tag={lab.tag} title={lab.title} sub={lab.sub} />
+
+    <ul class="mt-12 grid gap-4 md:mt-16 md:grid-cols-6 md:gap-5">
+      {
+        lab.products.map((p, i) => {
+          const featured = p.size === 'xl';
+          return (
+            <li
+              class:list={['card group/card flex flex-col overflow-hidden transition-colors duration-300 hover:border-line-strong', span[p.size]]}
+              data-reveal
+              style={`--reveal-delay:${(i % 3) * 80}ms`}
+            >
+              <div
+                class:list={[
+                  'relative border-b border-line bg-[radial-gradient(80%_100%_at_50%_100%,rgb(255_204_216/0.06),transparent)] px-5 transition-transform',
+                  featured
+                    ? 'h-56 py-6 md:h-72 md:px-8 lg:h-auto lg:w-[56%] lg:border-b-0 lg:border-l lg:bg-[radial-gradient(70%_90%_at_50%_100%,rgb(255_204_216/0.07),transparent)] lg:px-10 lg:py-10'
+                    : 'h-40 py-5',
+                ]}
+              >
+                <div class="size-full transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover/card:scale-[1.03]">
+                  <ProductVisual kind={p.visual} />
+                </div>
+              </div>
+
+              <div class:list={['flex flex-1 flex-col p-6', featured && 'md:p-8 lg:p-10']}>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span
+                    class:list={[
+                      'rounded-full px-2.5 py-1 text-tag',
+                      featured ? 'bg-brand text-brand-ink' : 'border border-line-strong text-fg-muted',
+                    ]}
+                  >
+                    {p.badge}
+                  </span>
+                  <span class="font-mono text-[0.6875rem] text-fg-subtle">0{i + 1}</span>
+                </div>
+
+                <h3 class:list={['mt-5 font-semibold tracking-tight', featured ? 'text-2xl md:text-3xl' : 'text-xl']}>{p.name}</h3>
+                <p class="mt-2 font-mono text-[0.6875rem] leading-relaxed tracking-wide text-fg-muted uppercase">
+                  {p.tags.join(' · ')}
+                </p>
+                <p class:list={['mt-4 leading-relaxed text-fg-muted', featured ? 'md:text-lg' : 'text-[0.9375rem]']}>{p.copy}</p>
+
+                <div class="mt-auto pt-6">
+                  <p class="flex gap-2.5 border-t border-line pt-4 text-sm leading-snug text-fg">
+                    <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-live" aria-hidden="true" />
+                    <span>{p.status}</span>
+                  </p>
+                  <button
+                    type="button"
+                    class="mt-4 inline-flex items-center gap-2 text-sm text-fg-muted transition-colors hover:text-brand"
+                    data-open-booking
+                    data-objective="ai"
+                    data-context={`R&D walkthrough request: ${p.name}`}
+                  >
+                    Request a walkthrough
+                    <svg class="size-3.5 transition-transform group-hover/card:translate-x-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+                  </button>
+                </div>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>

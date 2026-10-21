@@ -1,0 +1,45 @@
+---
+import Logo from './Logo.astro';
+import { site, nav, contacts } from '../config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-line pt-16 pb-[max(2.5rem,env(safe-area-inset-bottom))] md:pt-20">
+  <div class="container-x">
+    <div class="grid gap-12 md:grid-cols-12">
+      <div class="md:col-span-6">
+        <Logo class="size-12 text-brand" title="iKu.group" />
+        <p class="mt-6 max-w-sm text-sm leading-relaxed text-fg-muted">
+          {site.role}
+        </p>
+      </div>
+      <nav class="md:col-span-3" aria-label="Footer">
+        <p class="text-tag text-fg-subtle">Index</p>
+        <ul class="mt-4 grid gap-2.5 text-sm">
+          {nav.map((n) => <li><a class="link-underline text-fg-muted hover:text-fg" href={n.href}>{n.label}</a></li>)}
+          <li><a class="link-underline text-fg-muted hover:text-fg" href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="md:col-span-3">
+        <p class="text-tag text-fg-subtle">Channels</p>
+        <ul class="mt-4 grid gap-2.5 text-sm">
+          <li><a class="link-underline text-fg-muted hover:text-fg" href={contacts.telegram} target="_blank" rel="noopener">Telegram</a></li>
+          <li><a class="link-underline text-fg-muted hover:text-fg" href={contacts.whatsapp} target="_blank" rel="noopener">WhatsApp</a></li>
+          <li><a class="link-underline text-fg-muted hover:text-fg" href={`mailto:${contacts.email}`}>E-mail</a></li>
+          <li><a class="link-underline text-fg-muted hover:text-fg" href={contacts.linkedin} target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a class="link-underline text-fg-muted hover:text-fg" href={contacts.instagram} target="_blank" rel="noopener">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-16 flex flex-col gap-3 border-t border-line pt-6 font-mono text-[0.6875rem] leading-relaxed tracking-wider text-fg-subtle uppercase md:flex-row md:items-center md:justify-between">
+      <p>© {year} {site.name} ({site.brand}). All rights reserved.</p>
+      <p>Privacy-First & Zero-Knowledge Compliant Web Architecture.</p>
+      <a href="#top" class="inline-flex items-center gap-2 hover:text-fg">
+        Back to top
+        <svg class="size-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg>
+      </a>
+    </div>
+  </div>
+</footer>

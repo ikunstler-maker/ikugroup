@@ -1,0 +1,98 @@
+---
+import '@fontsource-variable/inter/opsz.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '../styles/global.css';
+import { site, contacts } from '../config/site';
+import { stack } from '../data/content';
+
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const ogImage = new URL(site.ogImage, site.url).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${site.url}/#person`,
+      name: site.name,
+      alternateName: 'Elijah Kunstler',
+      url: site.url,
+      jobTitle: ['AI Pipeline Architect', 'Executive Producer', 'Strategic Advisor'],
+      email: `mailto:${contacts.email}`,
+      telephone: '+380992225513',
+      sameAs: [contacts.linkedin, contacts.instagram, contacts.telegram],
+      knowsLanguage: ['uk', 'en'],
+      hasCredential: {
+        '@type': 'EducationalOccupationalCredential',
+        name: stack.certificate.name,
+        credentialCategory: 'Professional Certificate',
+        recognizedBy: { '@type': 'Organization', name: 'Google' },
+        url: stack.certificate.verify,
+      },
+    },
+    {
+      '@type': 'ProfessionalService',
+      '@id': `${site.url}/#service`,
+      name: `${site.name} · ${site.brand}`,
+      url: site.url,
+      image: ogImage,
+      description: site.description,
+      founder: { '@id': `${site.url}/#person` },
+      areaServed: 'Worldwide',
+      serviceType: [
+        'AI Pipeline Architecture',
+        'Generative AI Systems',
+        'Executive Video Production',
+        'C-Level AI Advisory',
+      ],
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>document.documentElement.classList.replace('no-js', 'js');</script>
+
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0a0a0b" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="author" content={site.name} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={`${site.name} · ${site.brand}`} />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={site.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.title} />
+    <meta name="twitter:description" content={site.description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body class="min-h-dvh">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:rounded-full focus:bg-brand focus:px-4 focus:py-2 focus:text-brand-ink"
+      >Skip to content</a
+    >
+    <slot />
+    <div class="grain" aria-hidden="true"></div>
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

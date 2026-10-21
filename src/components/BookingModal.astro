@@ -1,0 +1,35 @@
+---
+import CallForm from './contact/CallForm.astro';
+import StatusDot from './StatusDot.astro';
+import { contacts } from '../config/site';
+---
+
+<dialog id="booking" class="sheet" aria-labelledby="booking-title" data-booking>
+  <div class="flex max-h-[inherit] flex-col">
+    <header class="flex items-start justify-between gap-4 border-b border-line px-5 pt-5 pb-4 sm:px-8 sm:pt-7">
+      <div>
+        <p class="flex items-center gap-2 text-tag text-fg-muted"><StatusDot />Discovery call · 20 min</p>
+        <h2 id="booking-title" class="mt-3 text-2xl font-semibold tracking-tight sm:text-[1.75rem]">Let's scope your project.</h2>
+      </div>
+      <button
+        type="button"
+        class="-mt-1 -mr-2 grid size-11 shrink-0 place-items-center rounded-full text-fg-muted transition-colors hover:bg-white/5 hover:text-fg"
+        aria-label="Close"
+        data-close-booking
+      >
+        <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" /></svg>
+      </button>
+    </header>
+
+    <div class="overflow-y-auto overscroll-contain px-5 py-6 sm:px-8 sm:py-8">
+      <CallForm prefix="modal" />
+    </div>
+
+    <footer class="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-sm text-fg-muted sm:px-8">
+      <span class="hidden text-tag text-fg-subtle sm:inline">Prefer messaging?</span>
+      <a class="link-underline hover:text-fg" href={contacts.telegram} target="_blank" rel="noopener">Telegram</a>
+      <a class="link-underline hover:text-fg" href={contacts.whatsapp} target="_blank" rel="noopener">WhatsApp</a>
+      <a class="link-underline hover:text-fg" href={`mailto:${contacts.email}`}>E-mail</a>
+    </footer>
+  </div>
+</dialog>
